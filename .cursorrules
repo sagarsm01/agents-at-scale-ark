@@ -33,3 +33,5 @@ When creating pull requests, use this simple format:
 ```
 
 DO NOT include "Test plan" sections in PR descriptions.
+
+DO NOT generate documentation unless specifically asked.
