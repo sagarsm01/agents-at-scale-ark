@@ -160,3 +160,7 @@ services/ark-dashboard/ark-dashboard/lib/api/generated/openapi.json
 # Images and Generated files
 airgap-images/
 generated/
+*.lock
+.gitignore
+creds
+*.lock
