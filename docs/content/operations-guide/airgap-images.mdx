@@ -1,0 +1,476 @@
+---
+title: Building Airgapped Images
+description: A comprehensive guide for building Docker images for airgapped (offline) environments
+---
+
+# ARK Airgapped Image Builder
+
+A comprehensive script for building Docker images designed for airgapped (offline) environments.
+
+## Overview
+
+The `build-airgap-images.sh` script automates the process of building Docker images for ARK services with the following features:
+
+- ✨ **Interactive Mode** - Space-toggle selection with visual feedback
+- 🏗️ **Multi-service builds** - Build one or all services in a single command
+- 🎯 **Platform targeting** - Build for different architectures (amd64, arm64, etc.)
+- 📦 **Airgap packaging** - Automatically save images as tar files for offline deployment
+- 🔄 **Version management** - Automatically reads version from `version.txt`
+- 🔗 **Smart SDK sync** - Runs `sync-ark-sdk.sh` if present to sync dependencies
+- 🛠️ **Extensible** - Easily add new services to the build system
+- ⚡ **Efficient** - Only builds SDK when needed by services
+- 💬 **User-friendly** - Interactive prompts for save options and platform selection
+
+## Quick Start
+
+### Interactive Mode (Recommended)
+
+Simply run the script without arguments for an interactive experience:
+
+```bash
+./scripts/build-airgap-images.sh
+```
+
+**Features:**
+- ✨ **Space-toggle selection**: Type numbers and press SPACE to toggle services
+- 💾 **Save prompts**: Choose whether to save images as tar files
+- 🎯 **Platform selection**: Pick your target architecture
+- 📦 **Output directory**: Customize where images are saved
+
+**Example Interactive Session:**
+
+```
+Select services: 1 3 5
+  ✓ Selected: ark-api
+  ✓ Selected: ark-cluster-memory  
+  ✓ Selected: ark-evaluator
+  
+[Press ENTER to continue]
+
+Save images as tar files? (y/N): y
+Custom output directory? (press ENTER for default): /exports/images
+Build platform? (press ENTER for default): linux/amd64
+```
+
+### CLI Mode
+
+For scripting and automation, use command-line flags:
+
+#### List Available Services
+
+```bash
+./scripts/build-airgap-images.sh --list
+```
+
+#### Build a Single Service
+
+```bash
+./scripts/build-airgap-images.sh --service ark-api-a2a
+```
+
+#### Build Multiple Services
+
+```bash
+./scripts/build-airgap-images.sh -s ark-api -s ark-api-a2a
+```
+
+#### Build All Services
+
+```bash
+./scripts/build-airgap-images.sh --all
+```
+
+#### Build and Save for Airgapped Deployment
+
+```bash
+./scripts/build-airgap-images.sh --all --save
+```
+
+## Usage
+
+```
+./scripts/build-airgap-images.sh [OPTIONS]
+
+Options:
+  -s, --service NAME      Build specific service (can be used multiple times)
+  -a, --all               Build all services
+  -l, --list              List all available services
+  -p, --platform PLATFORM Target platform (default: linux/amd64)
+  --save                  Save images as tar files for airgapped deployment
+  -o, --output DIR        Output directory for saved images
+  --no-sdk                Skip building ark-sdk (useful if already built)
+  -v, --version VERSION   Override version tag (default: from version.txt)
+  -h, --help              Show help
+```
+
+## Supported Platforms
+
+| Platform | Description | Use Case |
+|----------|-------------|----------|
+| `linux/amd64` | Standard x86_64 | Intel/AMD servers (default) |
+| `linux/arm64` | ARM 64-bit | Apple Silicon, AWS Graviton |
+| `linux/arm64/v8` | ARMv8 64-bit | Specific ARM variants |
+
+Example:
+```bash
+./scripts/build-airgap-images.sh -s ark-api-a2a --platform linux/arm64
+```
+
+## Interactive Mode Guide
+
+### Service Selection with Space-Toggle
+
+The interactive mode provides a checkbox-like interface for selecting services:
+
+**Step 1: View Services**
+
+```
+Available Services:
+
+   1. ark-api                 services/ark-api                    [needs SDK]
+   2. ark-api-a2a             services/ark-api-a2a                [needs SDK]
+   3. ark-cluster-memory      services/ark-cluster-memory         
+   4. ark-controller          ark                                 
+   5. ark-dashboard           services/ark-dashboard              
+   6. ark-evaluator           services/ark-evaluator              [needs SDK]
+   7. ark-mcp                 services/ark-mcp                    [needs SDK]
+   8. executor-langchain      services/executor-langchain         [needs SDK]
+   9. mcp-filesys             mcp/filesys                         
+```
+
+**Step 2: Toggle Services**
+
+Type numbers separated by spaces to toggle selections:
+
+```
+Select services: 1 3 5
+  ✓ Selected: ark-api
+  ✓ Selected: ark-cluster-memory  
+  ✓ Selected: ark-evaluator
+
+Options: Add more numbers, press ENTER to continue, or type 'clear' to reset
+
+Select services: 7
+  ✓ Selected: ark-mcp
+
+Select services: [Press ENTER]
+```
+
+**Quick Commands:**
+- `all` - Select all services
+- `clear` - Deselect all services
+- `q` or `quit` - Cancel and exit
+- Just press ENTER - Finalize your selection
+
+**Step 3: Build Configuration**
+
+After selecting services, you'll be prompted for build options:
+
+```
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                     Selected Services (4)                                      ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+  ✔ ark-api
+  ✔ ark-cluster-memory
+  ✔ ark-evaluator
+  ✔ ark-mcp
+
+Build Configuration:
+Save images as tar files for airgapped deployment? (y/N): y
+✓ Images will be saved as tar files
+Custom output directory? (press ENTER for default: ./airgap-images): /exports
+✓ Output directory: /exports
+Build platform? (press ENTER for default: linux/amd64): 
+ℹ Platform: linux/amd64 (default)
+```
+
+### Benefits of Interactive Mode
+
+| Feature | Benefit |
+|---------|---------|
+| **Space-toggle** | Select/deselect services easily without retyping |
+| **Visual feedback** | See ✓/− symbols showing what's selected |
+| **Save prompts** | No need to remember `--save` flag |
+| **Platform selection** | Choose architecture interactively |
+| **Custom output** | Specify output directory when saving |
+| **Error recovery** | Can clear and restart selection |
+
+## Available Services
+
+| Service | Path | Requires SDK |
+|---------|------|--------------|
+| ark-api | services/ark-api | Yes |
+| ark-api-a2a | services/ark-api-a2a | Yes |
+| ark-cluster-memory | services/ark-cluster-memory | No |
+| ark-controller | ark | No |
+| ark-dashboard | services/ark-dashboard | No |
+| ark-evaluator | services/ark-evaluator | Yes |
+| ark-mcp | services/ark-mcp | Yes |
+| executor-langchain | services/executor-langchain | Yes |
+| mcp-filesys | mcp/filesys | No |
+
+## Airgapped Deployment Workflow
+
+### 1. Build and Save Images
+
+On a machine with internet access:
+
+```bash
+cd /path/to/agents-at-scale-ark
+./scripts/build-airgap-images.sh --all --save
+```
+
+This creates a timestamped directory in `airgap-images/` containing:
+- All service images as `.tar` files
+- A `manifest.txt` with build information
+
+### 2. Transfer to Airgapped Environment
+
+Copy the entire timestamped folder to your offline environment:
+
+```bash
+scp -r airgap-images/0.1.39_20250127_143022/ user@airgap-server:/tmp/
+```
+
+Or use physical media, network shares, etc.
+
+### 3. Load Images
+
+On the airgapped system:
+
+```bash
+cd /tmp/0.1.39_20250127_143022
+for img in *.tar; do docker load -i "$img"; done
+```
+
+### 4. Verify
+
+```bash
+docker images | grep 0.1.39
+```
+
+## Advanced Usage
+
+### Build for Multiple Platforms
+
+Build the same service for different architectures:
+
+```bash
+# Build for amd64
+./scripts/build-airgap-images.sh -s ark-api-a2a -p linux/amd64 --save -o ./images-amd64
+
+# Build for arm64
+./scripts/build-airgap-images.sh -s ark-api-a2a -p linux/arm64 --save -o ./images-arm64
+```
+
+### Skip SDK Rebuild
+
+If you've already built the SDK and just want to rebuild services:
+
+```bash
+./scripts/build-airgap-images.sh -s ark-api-a2a --no-sdk
+```
+
+### Custom Version Tag
+
+Override the version from `version.txt`:
+
+```bash
+./scripts/build-airgap-images.sh -s ark-api-a2a -v 0.2.0
+```
+
+### Custom Output Directory
+
+Specify where to save the images:
+
+```bash
+./scripts/build-airgap-images.sh --all --save -o /external-drive/ark-images
+```
+
+## Adding New Services
+
+To add a new service to the build system, edit `build-airgap-images.sh`:
+
+1. Add a line to the `SERVICES_DATA` variable:
+
+```bash
+SERVICES_DATA="
+ark-api|services/ark-api|Dockerfile|ark-api|true
+ark-api-a2a|services/ark-api-a2a|Dockerfile|ark-api-a2a|true
+your-new-service|services/your-service|Dockerfile|your-service-image|false
+...
+"
+```
+
+Format: `service-name|path|dockerfile|image-name|needs-sdk`
+
+2. That's it! The service will now appear in `--list` and can be built.
+
+## Output Structure
+
+When using `--save`, the script creates:
+
+```
+airgap-images/
+└── 0.1.39_20250127_143022/      # Version_Timestamp
+    ├── manifest.txt              # Build information
+    ├── ark-api_0.1.39.tar       # Service image
+    ├── ark-api-a2a_0.1.39.tar   # Service image
+    └── ...
+```
+
+## Troubleshooting
+
+### Docker Daemon Not Running
+
+```
+✗ Docker daemon not running
+Please start Docker daemon
+```
+
+**Solution:** Start Docker Desktop or `dockerd`
+
+### SDK Wheel Not Found
+
+```
+✗ SDK wheel not found: /path/to/ark_sdk-0.1.39-py3-none-any.whl
+Please build SDK first with: make ark-sdk-build
+```
+
+**Solution:** Either:
+- Let the script build it: Remove `--no-sdk` flag
+- Build manually: `make ark-sdk-build`
+
+### Service Not Found
+
+```
+✗ Unknown service: my-service
+Run './scripts/build-airgap-images.sh --list' to see available services
+```
+
+**Solution:** Use `--list` to see correct service names
+
+### Platform Not Supported
+
+If building for a platform fails, you may need Docker Buildx:
+
+```bash
+docker buildx create --use
+docker buildx inspect --bootstrap
+```
+
+## How It Works
+
+### Dockerfile Selection
+
+The script automatically prefers `Dockerfile.airgap` if present in the service directory, otherwise falls back to the standard `Dockerfile`. This allows services to have optimized Dockerfiles specifically for airgapped deployments.
+
+**All services now have `Dockerfile.airgap` versions** that eliminate external dependencies:
+
+| Service | Key Airgap Changes |
+|---------|-------------------|
+| **Python services** | Replace `COPY --from=ghcr.io/astral-sh/uv` with `pip install uv` |
+| **ark-api** | Remove external Helm download, make it optional |
+| **ark-controller** | Replace `gcr.io/distroless` with `alpine:3.19` base image |
+| **Node.js services** | Already airgap-compatible (no changes needed) |
+| **Go services (mcp)** | Document options for pre-built binaries |
+
+### SDK Dependency Management
+
+For services that require the ARK SDK, the script intelligently handles dependencies:
+
+1. **Checks for SDK wheel** - Verifies `ark_sdk-{version}-py3-none-any.whl` exists
+2. **Runs sync script** - If `sync-ark-sdk.sh` exists in the service directory, it runs it to:
+   - Copy the SDK wheel to the service's `out/` directory
+   - Update `pyproject.toml` with the correct SDK path
+   - Sync UV dependencies
+3. **Fallback** - If no sync script exists, manually copies the wheel
+4. **Cleanup** - After build, removes `out/` directory and restores original `pyproject.toml`
+
+This ensures each service gets properly configured dependencies before Docker build.
+
+### Build Flow
+
+```
+1. Check prerequisites (Docker, SDK wheel)
+2. For each service:
+   a. Validate paths
+   b. If needs SDK: Run sync-ark-sdk.sh or copy wheel
+   c. Build Docker image with specified platform
+   d. Cleanup artifacts
+   e. Optionally save as tar file
+3. Generate manifest and summary
+```
+
+## Prerequisites
+
+- Docker (with daemon running)
+- Make (for building SDK)
+- Bash 3.x or higher
+- Sufficient disk space for images
+- UV (Python package manager, used by sync scripts)
+
+## Version Management
+
+The script automatically reads the version from `version.txt` in the project root. This ensures all images are tagged consistently with the project version.
+
+To use a different version temporarily:
+```bash
+./scripts/build-airgap-images.sh -s ark-api-a2a -v custom-version
+```
+
+## Best Practices
+
+1. **Always use `--save` for airgapped deployments** - This packages everything you need
+2. **Test on a similar environment first** - Verify platform compatibility
+3. **Keep manifests** - The `manifest.txt` helps track what was built
+4. **Use consistent versions** - Don't mix image versions in production
+5. **Validate after loading** - Always verify images loaded correctly with `docker images`
+
+## Examples
+
+### Example 1: Build Everything for Production
+
+```bash
+# Build all services for amd64 and save
+./scripts/build-airgap-images.sh --all --save --platform linux/amd64
+
+# Output will be in: airgap-images/0.1.39_YYYYMMDD_HHMMSS/
+```
+
+### Example 2: Quick Development Build
+
+```bash
+# Build just what you need without saving
+./scripts/build-airgap-images.sh -s ark-api-a2a --no-sdk
+```
+
+### Example 3: Multi-Architecture Deployment
+
+```bash
+# Build for Intel/AMD servers
+./scripts/build-airgap-images.sh --all --save -p linux/amd64 -o ./prod-amd64
+
+# Build for ARM servers
+./scripts/build-airgap-images.sh --all --save -p linux/arm64 -o ./prod-arm64
+```
+
+### Example 4: Selective Service Build
+
+```bash
+# Build only the services you need
+./scripts/build-airgap-images.sh \
+  -s ark-api \
+  -s ark-api-a2a \
+  -s ark-dashboard \
+  --save
+```
+
+## Support
+
+For issues or questions:
+1. Check this documentation
+2. Run `./scripts/build-airgap-images.sh --help`
+3. Review the script source for comments
+4. Check the main project documentation
+

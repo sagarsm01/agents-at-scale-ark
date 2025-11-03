@@ -2,6 +2,7 @@ export default {
   'provisioning': 'Cloud Infrastructure Provisioning',
   'build-pipelines': 'Build Pipelines',
   'deploying-ark': 'Deploying ARK',
+  'airgap-images': 'Building Airgapped Images',
   'penetration-testing-reports': 'Penetration Testing Reports',
   'code-analysis-reports': 'Code Analysis Reports',
   'artifact-analysis-reports': 'Artifact Analysis Reports',
