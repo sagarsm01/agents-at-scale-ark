@@ -156,3 +156,11 @@ services/ark-dashboard/ark-dashboard/lib/api/generated/openapi.json
 
 # Helm chart dependencies
 **/charts/*.tgz
+
+# Images and Generated files
+airgap-images/
+generated/
+*.lock
+.gitignore
+creds
+*.lock
