@@ -41,7 +41,7 @@ ark-dashboard|services/ark-dashboard|Dockerfile|ark-dashboard|false
 ark-evaluator|services/ark-evaluator|Dockerfile|ark-evaluator|true
 ark-mcp|services/ark-mcp|Dockerfile|ark-mcp|true
 executor-langchain|services/executor-langchain|Dockerfile|executor-langchain|true
-mcp-filesys|mcp/filesys|Dockerfile|mcp-filesys|false
+mcp-filesystem|mcp/filesystem-mcp|Dockerfile|filesystem-mcp-server|false
 "
 
 # Get service info by name

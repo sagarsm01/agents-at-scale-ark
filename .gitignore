@@ -140,6 +140,8 @@ out/
 lib/ark-sdk/uv.lock
 *.whl
 *.toml.bak
+**/pyproject.toml.bak
+**/*.toml.bak
 
 # Kubebuilder auto-generated files we don't want
 .github/workflows/test-chart.yml

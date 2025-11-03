@@ -7,10 +7,10 @@ RUN pip install --no-cache-dir uv
 
 RUN groupadd -r evaluator && useradd -r -g evaluator evaluator
 
-# Copy project files from ark-evaluator subdirectory (created by sync-ark-sdk.sh)
-COPY ark-evaluator/pyproject.toml ark-evaluator/uv.lock ark-evaluator/README.md ./
-COPY ark-evaluator/src/ ./src/
-COPY ark-evaluator/ark_sdk-*.whl ./
+# Copy project files
+COPY pyproject.toml uv.lock README.md ./
+COPY src/ ./src/
+COPY ark_sdk-*.whl ./
 
 WORKDIR /app
 
