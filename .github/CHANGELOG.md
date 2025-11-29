@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.47](https://github.com/mckinsey/agents-at-scale-ark/compare/v0.1.46...v0.1.47) (2025-11-29)
+
+
+### Features
+
+* **a2a:** add delete functionality / event links ([#436](https://github.com/mckinsey/agents-at-scale-ark/issues/436)) ([477b6f5](https://github.com/mckinsey/agents-at-scale-ark/commit/477b6f5689eef23037799865066a6d679bc5b550)), closes [#222](https://github.com/mckinsey/agents-at-scale-ark/issues/222)
+* add default 30m timeout for ark status --wait-for-ready ([#474](https://github.com/mckinsey/agents-at-scale-ark/issues/474)) ([03a68ba](https://github.com/mckinsey/agents-at-scale-ark/commit/03a68bae88915b745594551297cb3cc0cfb99b44))
+* Add status and availability badge for teams ([#518](https://github.com/mckinsey/agents-at-scale-ark/issues/518)) ([8215f9a](https://github.com/mckinsey/agents-at-scale-ark/commit/8215f9a6bb75d42a19ff005597c10701fc855b22))
+* structured eventing ([#477](https://github.com/mckinsey/agents-at-scale-ark/issues/477)) ([7d6f356](https://github.com/mckinsey/agents-at-scale-ark/commit/7d6f35671deb6507de1a5eb8f334470a436c3baa))
+
+
+### Bug Fixes
+
+* Use boolean for ENABLE_MINIO flag ([#523](https://github.com/mckinsey/agents-at-scale-ark/issues/523)) ([2606045](https://github.com/mckinsey/agents-at-scale-ark/commit/260604595ef2c4cb9f0a0b36f8fe9940859e982e))
+
 ## [0.1.46](https://github.com/mckinsey/agents-at-scale-ark/compare/v0.1.45...v0.1.46) (2025-11-27)
 
 
